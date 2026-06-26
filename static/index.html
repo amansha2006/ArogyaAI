@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArogyaAI — Intelligent Health</title>
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar" style="display: none;">
+        <div class="nav-content">
+            <div class="logo">🏥 ArogyaAI</div>
+            <div class="nav-links" id="navLinks">
+                <!-- Injected via JS -->
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- App Container -->
+    <main class="app-container" id="app">
+        
+        <!-- ============================================== -->
+        <!-- VIEW: LANDING PAGE -->
+        <!-- ============================================== -->
+        <section id="view-landing" class="view active-view fade-in">
+            <div class="hero" style="background: white; padding: 4rem 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border); text-align: center; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+                <div class="hero-icon" style="font-size: 3rem; margin-bottom: 1rem;">🏥</div>
+                <h1 class="hero-title" style="font-size: 2.5rem; color: var(--primary-dark); margin-bottom: 1rem;">ArogyaAI</h1>
+                <p class="hero-subtitle" style="font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto;">
+                    Upload blood report → describe symptoms → get personalised prescription<br>
+                    in <b>Allopathy · Ayurveda · Homeopathy</b>
+                </p>
+            </div>
+            
+            <div class="portal-grid">
+                <div class="portal-card" onclick="appState.role='patient'; renderLogin();">
+                    <div class="portal-icon">👤</div>
+                    <h2>Patient Portal</h2>
+                    <p>Blood report analysis, AI prescription in 3 systems & PDF download</p>
+                    <button class="btn btn-primary">Enter Patient Portal →</button>
+                </div>
+                
+                <div class="portal-card" onclick="appState.role='doctor'; renderLogin();">
+                    <div class="portal-icon">🩺</div>
+                    <h2>Doctor Portal</h2>
+                    <p>View all patients & sessions, monitor prescriptions, configure AI engine</p>
+                    <button class="btn btn-secondary">Enter Doctor Portal →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: LOGIN PAGE -->
+        <!-- ============================================== -->
+        <section id="view-login" class="view">
+            <button class="btn-back" onclick="navigate('landing')">← Back</button>
+            <div class="glass-card login-container">
+                <div class="login-header">
+                    <div class="login-icon" id="loginIcon">👤</div>
+                    <h2 class="login-title" id="loginTitle">Patient Portal</h2>
+                    <p>ArogyaAI — Health Intelligence</p>
+                </div>
+                
+                <div class="tabs" id="loginTabs">
+                    <button class="tab active" onclick="switchLoginTab('login')">🔐 Login</button>
+                    <button class="tab" onclick="switchLoginTab('register')" id="tabRegister">📝 Register</button>
+                </div>
+                
+                <div id="loginForm" class="form-section active-form">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="l_username" placeholder="your_username">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="l_password" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary full-width" onclick="doLogin()">Login →</button>
+                    <div id="loginError" class="error-msg"></div>
+                </div>
+
+                <div id="registerForm" class="form-section">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="r_username" placeholder="choose_username">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="r_password" placeholder="Min 6 chars">
+                    </div>
+                    <button class="btn btn-primary full-width" onclick="doRegister()">Create Account →</button>
+                    <div id="registerMsg" class="error-msg"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: PATIENT - CONSULT -->
+        <!-- ============================================== -->
+        <section id="view-consult" class="view">
+            <!-- Step Progress -->
+            <div class="step-bar" id="consultSteps">
+                <div class="step active">Step 1: Blood Report</div>
+                <div class="step">Step 2: Symptoms</div>
+                <div class="step">Step 3: Diagnosis</div>
+                <div class="step">Step 4: Prescription</div>
+            </div>
+
+            <!-- Profile Alert -->
+            <div id="profileAlert" class="alert-box" style="display:none;">
+                👤 Complete your health profile first to get personalised prescriptions.
+                <button class="btn btn-sm btn-primary" onclick="navigate('profile')">Go to Profile</button>
+            </div>
+
+            <div class="consult-grid" id="consultGrid">
+                <!-- Left Column: Inputs -->
+                <div class="consult-inputs">
+                    <!-- Step 1: Report -->
+                    <div class="glass-card">
+                        <h3>📊 Step 1 — Blood Report <span>(Optional)</span></h3>
+                        <div class="input-group">
+                            <label>Upload PDF or Image</label>
+                            <input type="file" id="reportFile" accept=".pdf,image/*">
+                        </div>
+                        <div class="input-group">
+                            <label>Or paste values directly</label>
+                            <textarea id="reportManual" rows="3" placeholder="Hb: 8.2 g/dL..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Notes</label>
+                            <input type="text" id="reportNotes" placeholder="Any context about this report?">
+                        </div>
+                        <button class="btn btn-secondary full-width" onclick="analyzeReport()">🔍 Analyse Report</button>
+                    </div>
+
+                    <!-- Step 1.5: Vitals -->
+                    <div class="glass-card">
+                        <h3>🩺 Quick Vitals Check <span>(update each visit)</span></h3>
+                        <div class="vitals-inputs">
+                            <div class="input-group">
+                                <label>BP Systolic</label>
+                                <input type="number" id="iv_sys" value="120">
+                            </div>
+                            <div class="input-group">
+                                <label>BP Diastolic</label>
+                                <input type="number" id="iv_dia" value="80">
+                            </div>
+                            <div class="input-group">
+                                <label>Temp (°F)</label>
+                                <input type="number" id="iv_temp" value="98.6" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Symptoms -->
+                    <div class="glass-card">
+                        <h3>💬 Step 2 — Describe Symptoms</h3>
+                        <div class="input-group">
+                            <label>What is bothering you?</label>
+                            <textarea id="symptomsText" rows="4" placeholder="Example: I have high fever for 3 days..."></textarea>
+                        </div>
+                        <div class="vitals-inputs">
+                            <div class="input-group">
+                                <label>Severity (1-10)</label>
+                                <input type="number" id="symSeverity" value="5" min="1" max="10">
+                            </div>
+                            <div class="input-group">
+                                <label>Duration</label>
+                                <input type="text" id="symDuration" placeholder="3 days">
+                            </div>
+                        </div>
+                        <div class="input-group" style="margin-top: 1rem;">
+                            <label>Preferred Treatment System</label>
+                            <select id="prefSystem">
+                                <option value="all">Recommend Best Option (Show All)</option>
+                                <option value="allo">Allopathy Only</option>
+                                <option value="ayur">Ayurveda Only</option>
+                                <option value="home">Homeopathy Only</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary full-width pulse-btn" style="margin-top: 1rem; font-size: 1.1rem; padding: 1rem;" onclick="generatePrescription()">💊 Generate AI Prescription →</button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Results & Report View -->
+                <div class="consult-results">
+                    <!-- Loading State -->
+                    <div id="loaderState" class="glass-card" style="display:none; text-align: center; padding: 3rem;">
+                        <div class="loader"></div>
+                        <h3 style="margin-top: 1.5rem; color: var(--primary);">Analyzing Medical Data...</h3>
+                        <p style="color: var(--text-muted);">Please wait while ArogyaAI processes your information.</p>
+                    </div>
+
+                    <!-- Report Analysis Result -->
+                    <div id="reportResult" class="glass-card" style="display:none;">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: PRESCRIPTION -->
+        <!-- ============================================== -->
+        <section id="view-prescription" class="view">
+            <button class="btn-back" onclick="navigate('consult')">← Back to Consult</button>
+            <div class="glass-card max-w-1000">
+                <!-- AI Rate Recommendation Banner -->
+                <div id="rxRecommendation" class="recommendation-banner" style="display:none;">
+                    <!-- Injected via JS -->
+                </div>
+
+                <!-- Final Prescription Result -->
+                <div id="prescriptionResult">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: PROFILE -->
+        <!-- ============================================== -->
+        <section id="view-profile" class="view">
+            <div class="glass-card max-w-800">
+                <h2>👤 Health Profile</h2>
+                <div class="form-grid">
+                    <div class="input-group"><label>Full Name *</label><input type="text" id="p_name"></div>
+                    <div class="input-group"><label>Age *</label><input type="number" id="p_age"></div>
+                    <div class="input-group"><label>Gender</label>
+                        <select id="p_gender"><option>Male</option><option>Female</option><option>Other</option></select>
+                    </div>
+                    <div class="input-group"><label>Weight (kg)</label><input type="number" id="p_weight"></div>
+                    <div class="input-group"><label>Height (cm)</label><input type="number" id="p_height"></div>
+                    <div class="input-group"><label>Blood Group</label>
+                        <select id="p_blood"><option>—</option><option>A+</option><option>O+</option><option>B+</option><option>AB+</option><option>A-</option><option>O-</option><option>B-</option><option>AB-</option></select>
+                    </div>
+                    <div class="input-group"><label>BP Systolic</label><input type="number" id="p_sys"></div>
+                    <div class="input-group"><label>BP Diastolic</label><input type="number" id="p_dia"></div>
+                    <div class="input-group"><label>Temp (°F)</label><input type="number" id="p_temp" step="0.1"></div>
+                    <div class="input-group"><label>State</label><select id="p_state"><option>Tamil Nadu</option></select></div>
+                    <div class="input-group"><label>City</label><input type="text" id="p_city"></div>
+                    <div class="input-group"><label>Diet</label>
+                        <select id="p_diet"><option>Non-Vegetarian</option><option>Vegetarian</option><option>Vegan</option></select>
+                    </div>
+                </div>
+                <div class="input-group" style="margin-top: 1rem;">
+                    <label>Conditions (comma-separated)</label>
+                    <input type="text" id="p_cond" placeholder="Diabetes, Hypertension...">
+                </div>
+                <div class="input-group">
+                    <label>Allergies (comma-separated)</label>
+                    <input type="text" id="p_aller" placeholder="Penicillin, Peanuts...">
+                </div>
+                <div class="input-group">
+                    <label>Current Medicines</label>
+                    <input type="text" id="p_meds" placeholder="Metformin 500mg...">
+                </div>
+                <button class="btn btn-primary full-width" style="margin-top: 1rem;" onclick="saveProfile()">💾 Save Profile</button>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: HISTORY -->
+        <!-- ============================================== -->
+        <section id="view-history" class="view">
+            <div class="glass-card max-w-1000">
+                <h2>📈 Consultation History</h2>
+                <p style="color:var(--text-muted); margin-bottom: 1rem;">View your previous AI prescriptions and session details.</p>
+                <div id="historyLoader" class="loader" style="display:none; margin:2rem auto;"></div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Symptoms</th>
+                                <th>Diagnosis</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="historyEmpty" style="display:none; text-align:center; padding: 2rem; color: var(--text-muted);">
+                    No consultation history found.
+                </div>
+            </div>
+            
+            <!-- Patient Session Modal -->
+            <div id="patientSessionModal" class="modal-overlay" style="display:none;">
+                <div class="modal-content glass-card">
+                    <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:1rem; margin-bottom:1rem;">
+                        <h3 id="pModalTitle" style="margin:0;">Session Details</h3>
+                        <button class="btn" style="padding:0.5rem 1rem; background:var(--bg); border:1px solid rgba(255,255,255,0.1);" onclick="closePatientSessionModal()">✖ Close</button>
+                    </div>
+                    <div class="modal-body" id="pModalBody">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: DRUG INFO (MEDICINE/SALT LOOKUP) -->
+        <!-- ============================================== -->
+        <section id="view-druginfo" class="view">
+            <div class="glass-card max-w-800">
+                <h2>💊 Medicine & Salt Dictionary</h2>
+                <p style="color:var(--text-muted); margin-bottom: 1rem;">Search for any medicine brand (e.g., Dolo 650) or generic salt (e.g., Paracetamol) to instantly learn its uses, side effects, and how it works.</p>
+                
+                <div class="input-group" style="display:flex; gap:10px;">
+                    <input type="text" id="drugInput" placeholder="Enter medicine or salt name..." style="flex:1;" onkeypress="if(event.key === 'Enter') lookupMedicine();">
+                    <button class="btn btn-primary" onclick="lookupMedicine()">Search 🔍</button>
+                </div>
+                
+                <div id="drugLoader" class="loader" style="display:none; margin:2rem auto;"></div>
+                
+                <div id="drugResult">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: ADMIN DASHBOARD -->
+        <!-- ============================================== -->
+        <section id="view-admin" class="view">
+            <div class="glass-card max-w-1000">
+                <h2 style="color: #ff4757;">👑 Super Admin Dashboard</h2>
+                
+                <div class="tabs" style="margin-top: 2rem;">
+                    <button class="tab active" onclick="switchAdminTab('users')" id="tabAdminUsers">All Users & Credentials</button>
+                    <button class="tab" onclick="switchAdminTab('sessions')" id="tabAdminSessions">All Visit History</button>
+                </div>
+
+                <div id="adminUsersView" class="form-section active-form">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Password Hash</th>
+                                    <th>Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminUsersTable">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="adminSessionsView" class="form-section">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient ID</th>
+                                    <th>Total Visits</th>
+                                    <th>Last Visit Date</th>
+                                    <th>Latest PDF</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminSessionsTable">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW: DOCTOR DASHBOARD -->
+        <!-- ============================================== -->
+        <section id="view-doctor" class="view">
+            <div class="glass-card max-w-1000">
+                <h2>🩺 Doctor Dashboard</h2>
+                
+                <div class="doc-stats-grid" id="docStats">
+                    <!-- Injected via JS -->
+                </div>
+
+                <div class="tabs" style="margin-top: 2rem;">
+                    <button class="tab active" onclick="switchDocTab('sessions')" id="tabDocSessions">Recent Sessions</button>
+                    <button class="tab" onclick="switchDocTab('patients')" id="tabDocPatients">Patient Directory</button>
+                </div>
+
+                <div id="docSessionsView" class="form-section active-form">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Patient</th>
+                                    <th>Symptoms</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="docSessionsTable">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="docPatientsView" class="form-section">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient ID</th>
+                                    <th>Name</th>
+                                    <th>Age/Gender</th>
+                                    <th>City</th>
+                                    <th>Conditions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="docPatientsTable">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor Session Modal -->
+            <div id="sessionModal" class="modal-overlay" style="display:none;">
+                <div class="modal-content glass-card">
+                    <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:1rem; margin-bottom:1rem;">
+                        <h3 id="modalTitle" style="margin:0;">Session Details</h3>
+                        <button class="btn" style="padding:0.5rem 1rem; background:var(--bg); border:1px solid rgba(255,255,255,0.1);" onclick="closeSessionModal()">✖ Close</button>
+                    </div>
+                    <div class="modal-body" id="modalBody">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

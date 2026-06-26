@@ -1,0 +1,41 @@
+# ArogyaAI — Python Dependencies
+# Python 3.10+ | Server: Dual H100 80GB | 1TB RAM
+# Install: pip install -r requirements.txt
+
+# ── Core App ──────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+requests>=2.31.0
+Pillow>=10.0.0
+plotly>=5.20.0
+pandas>=2.0.0
+beautifulsoup4>=4.12.0
+
+# ── PDF generation ────────────────────────────────────────────────────────────
+reportlab>=4.1.0
+
+# ── PDF reading (blood reports) ───────────────────────────────────────────────
+pdfplumber>=0.10.0
+
+# ── Scheduling ────────────────────────────────────────────────────────────────
+apscheduler>=3.10.0
+
+# ── API Server ────────────────────────────────────────────────────────────────
+fastapi>=0.100.0
+uvicorn>=0.23.0
+python-multipart>=0.0.6
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TRAINING DEPENDENCIES (install on H100 server only)
+# pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu121
+# ═══════════════════════════════════════════════════════════════════════════════
+# torch>=2.2.0+cu121
+# transformers>=4.41.0
+# peft>=0.11.0
+# bitsandbytes>=0.43.0
+# accelerate>=0.29.0
+# trl>=0.8.6                    # SFTTrainer
+# deepspeed>=0.14.0             # ZeRO Stage 2
+# datasets>=2.18.0
+# sentence-transformers>=3.0.0
+# faiss-cpu>=1.8.0              # use faiss-gpu on server
+# scikit-learn>=1.4.0
