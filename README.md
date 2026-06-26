@@ -152,8 +152,8 @@ Evaluated on a custom Hinglish-English medical dataset using `EmbeddingSimilarit
 ## 📊 Knowledge Base Scale
 | Category | Count |
 |----------|-------|
-| Diseases (full profiles) | 60+ |
-| Allopathic medicines with Indian brands | 120+ |
+| Diseases (full profiles) | 110+ |
+| Allopathic medicines with Indian brands | 222,825+ |
 | Ayurvedic formulations with brands | 30+ |
 | Homeopathic remedies | 20+ |
 | Drug interactions (Allopathic + Ayurvedic cross-system) | 23+ |
