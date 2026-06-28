@@ -1,25 +1,3 @@
-"""
-ArogyaAI — BioBERT Fine-Tuning for Indian Medical Embeddings
-=============================================================
-Fine-tunes BioBERT on Indian medical sentence pairs so the
-RAG retrieval system understands:
-  - Hinglish symptom descriptions  ("bukhar" = "fever")
-  - Indian drug brand↔generic      ("Dolo-650" = "Paracetamol 650mg")
-  - Indian disease terminology
-
-After fine-tuning, builds all 4 FAISS indexes automatically.
-
-Steps:
-  1. python training/build_dataset.py --all
-  2. python training/finetune_biobert.py
-
-Output: models/biobert_finetuned/
-        data/faiss_indexes/allopathy.index
-        data/faiss_indexes/ayurveda.index
-        data/faiss_indexes/homeopathy.index
-        data/faiss_indexes/drug_interactions.index
-"""
-
 import json
 import logging
 import os
@@ -80,20 +58,22 @@ def finetune_biobert():
     s1, s2, scores = load_sentence_pairs(SENTENCE_FILE)
     logger.info("Loaded %d sentence pairs", len(s1))
 
-    # Build InputExample list
+    # Build InputExample list (No labels needed for MNRL)
+    # IMPORTANT: MNRL expects ONLY positive pairs! We must filter out any 0.0 scores.
     train_examples = [
-        InputExample(texts=[a, b], label=sc)
-        for a, b, sc in zip(s1, s2, scores)
+        InputExample(texts=[a, b])
+        for a, b, sc in zip(s1, s2, scores) if sc >= 0.5
     ]
-    train_dataloader = DataLoader(train_examples, shuffle=True, batch_size=64)
+    train_dataloader = DataLoader(train_examples, shuffle=True, batch_size=128)
 
     # Load base BioBERT as sentence encoder
     base_model = config.BIOBERT_BASE if hasattr(config, "BIOBERT_BASE") else "FremyCompany/BioLORD-2023-M"
     logger.info("Loading base model: %s", base_model)
     model = SentenceTransformer(base_model, model_kwargs={"use_safetensors": True})
 
-    # Cosine similarity loss for regression
-    train_loss = losses.CosineSimilarityLoss(model)
+    # PREVENT REPRESENTATION COLLAPSE: Use MultipleNegativesRankingLoss
+    # This automatically uses other pairs in the batch as "hard negatives" to push diseases apart.
+    train_loss = losses.MultipleNegativesRankingLoss(model)
 
     # Evaluator on a held-out subset
     n_eval = min(100, len(s1) // 5)
@@ -105,7 +85,7 @@ def finetune_biobert():
     logger.info("Starting fine-tuning (expected: 30-60 min on H100)...")
     model.fit(
         train_objectives=[(train_dataloader, train_loss)],
-        epochs=10,
+        epochs=30,
         warmup_steps=int(len(train_dataloader) * 0.1),
         evaluator=evaluator,
         evaluation_steps=200,
