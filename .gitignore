@@ -22,7 +22,6 @@ data/*.sqlite3
 
 # Models and large files
 models/
-data/faiss_indexes/
 
 # OS generated files
 .DS_Store

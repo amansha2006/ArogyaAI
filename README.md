@@ -153,7 +153,7 @@ python training/finetune_biobert.py --all
 | 7.0   | 301  | 0.3783          |
 | 9.0   | 387  | 0.4657          |
 
-✅ **Evaluation Note:** The positive Spearman alignment and perfect top-1 retrieval accuracy prove that the RAG embeddings can accurately capture cross-lingual semantic similarity for complex, multi-language Indian medical queries without hallucination.
+✅ **Evaluation Note:** The positive Spearman alignment and perfect top-1 retrieval accuracy prove that the RAG embeddings can accurately capture cross-lingual semantic similarity for complex, multi-language Indian medical queries while substantially minimizing the risk of model hallucinations.
 
 ---
 
@@ -161,11 +161,13 @@ python training/finetune_biobert.py --all
 | Category | Count |
 |----------|-------|
 | Diseases (full profiles) | 110+ |
-| Allopathic medicines with Indian brands | 222,825+ |
+| Allopathic medicines with Indian brands¹ | 222,825+ |
 | Ayurvedic formulations with brands | 30+ |
 | Homeopathic remedies | 20+ |
 | Drug interactions (Allopathic + Ayurvedic cross-system) | 23+ |
 | Blood test reference ranges | 40+ |
+
+¹ *Note: Compiled from OpenFDA datasets, local Indian pharmaceutical manufacturing directories, and NDC registries.*
 
 <br>
 <div align="center">
